@@ -10,24 +10,54 @@ public class PlayfairCypher
 			-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,};
 	private int[] columnIndices = {-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,
 			-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,};
-	
 	private char[][] digraph= new char[5][5];
 	
-	public PlayfairCypher() 
+	public PlayfairCypher(String key) 
 	{
-		String key = "THEQUICKBROWNFXMPDVLAZYGS";
-		for (int i = 0; i < columnIndices.length; i++) 
+		getDistinctsChars(key);
+		/*key=getDistinctsChars(key);
+		char[] aux=key.toCharArray();
+		int iArray=0;*/
+		
+		/*for (int i = 0; i < columnIndices.length; i++) 
 		{
 			for (int j = 0; j < columnIndices.length; j++) 
 			{
-				columnIndices[key.charAt(i)-65]=i;
-				rowIndices[key.charAt(i)-65]=j;
-				digraph[i][j]=key.charAt(i);
+				columnIndices[aux[iArray]-65]=i;
+				rowIndices[aux[iArray]-65]=j;
+				digraph[i][j]=aux[iArray];
 			}
-		}
+		}*/
 	}
 	
-	public void encryptTST(String txt)
+	public char[][] getDigraph()
+	{
+		return digraph;
+	}
+	public void setDigraph(char[][] digraph)
+	{
+		this.digraph = digraph;
+	}
+	
+	public int[] getRowIndexes()
+	{
+		return rowIndices;
+	}
+	public void setRowIndexes(int[] rowIndices)
+	{
+		this.rowIndices = rowIndices;
+	}
+	
+	public int[] getColumnIndices()
+	{
+		return columnIndices;
+	}
+	public void setColumnIndices(int[] columnIndices)
+	{
+		this.columnIndices = columnIndices;
+	}
+	
+ 	private String getDistinctsChars(String txt)
 	{
 		int counter=0;
 		String enc="";
@@ -40,7 +70,7 @@ public class PlayfairCypher
 		{
 			txt=txt.replace(m.group(0), m.group(0).charAt(0) + "X");
 		}
-		
+				
 		for(int i=0;counter<25;i++)
 		{
 			if(rowIndices[txt.charAt(i)-65]==-1)
@@ -58,6 +88,8 @@ public class PlayfairCypher
 				ri++;
 			}
 		}
+		
+		return txt;
 		
 	}
 	
@@ -162,6 +194,7 @@ public class PlayfairCypher
 					auxColuna=4;
 
 				aux+=digraph[auxColuna][rowIndices[letters[0]-65]];
+				columnIndices[letters[0]-65]=auxColuna;
 				
 				auxColuna = columnIndices[letters[1]-65];
 				auxColuna--;
@@ -169,6 +202,7 @@ public class PlayfairCypher
 					auxColuna=4;
 				
 				aux+=digraph[auxColuna][rowIndices[letters[1]-65]];
+				columnIndices[letters[1]-65]=auxColuna;
 			}
 			else if(columnIndices[letters[0]-65]==columnIndices[letters[1]-65])
 			{
@@ -181,6 +215,7 @@ public class PlayfairCypher
 					auxLinha=0;
 				
 				aux+=digraph[columnIndices[letters[0]-65]][auxLinha];
+				rowIndices[letters[0]-65]=auxLinha;
 				
 				auxLinha = rowIndices[letters[1]-65];
 				auxLinha++;
@@ -188,14 +223,20 @@ public class PlayfairCypher
 					auxLinha=0;
 				
 				aux+=digraph[columnIndices[letters[1]-65]][auxLinha];
+				rowIndices[letters[0]-65]=auxLinha;
 			}
 			else
 			{
 				//minha linha coluna da outra letra
 				//[coluna][linha]
 				
+						
 				aux+=digraph[columnIndices[letters[1]-65]][rowIndices[letters[0]-65]]
 						+digraph[columnIndices[letters[0]-65]][rowIndices[letters[1]-65]];
+				
+				rowIndices[letters[0]-65]^=rowIndices[letters[1]-65];
+				rowIndices[letters[1]-65]^=rowIndices[letters[0]-65];
+				rowIndices[letters[0]-65]^=rowIndices[letters[1]-65];
 			}
 		}
 		
