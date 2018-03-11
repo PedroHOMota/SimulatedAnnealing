@@ -61,7 +61,7 @@ public class PlayfairCypher
 		
 	}
 	
-	public void encrypt(String txt)
+	public String[] CreatePairs(String txt)
 	{
 		String[] pairs;
 		
@@ -78,11 +78,13 @@ public class PlayfairCypher
 	
 		pairs = txt.split("(..)");
 		
+		return pairs;
+		
 		
 	}
-	public String blabla(String[] pairs)
+	
+	public String Encrypt(String[] pairs)
 	{
-		int b='a'-65;
 		String aux="";
 		
 		for (int i = 0; i < pairs.length; i++) 
@@ -95,12 +97,14 @@ public class PlayfairCypher
 				//[coluna][linha]
 				int auxColuna = 0;
 				auxColuna = columnIndices[letters[0]-65];
-				if(auxColuna+1>4)
+				auxColuna++;
+				if(auxColuna>4)
 					auxColuna=0;
 				
 				aux+=digraph[auxColuna][rowIndices[letters[0]-65]];
 				
 				auxColuna = columnIndices[letters[1]-65];
+				auxColuna++;
 				if(auxColuna+1>4)
 					auxColuna=0;
 				
@@ -111,28 +115,91 @@ public class PlayfairCypher
 				//Pegar a letra imediata abaixo
 				//[coluna][linha]
 				int auxLinha = 0;
-				auxLinha = rowIndices[letters[0]-65];
-				if(auxLinha+1>4)
-					auxLinha=0;
+				auxLinha = columnIndices[letters[0]-65];
+				auxLinha--;
+				if(auxLinha<0)
+					auxLinha=4;
 				
-				aux+=digraph[rowIndices[letters[0]-65]][auxLinha];
+				aux+=digraph[columnIndices[letters[0]-65]][auxLinha];
 				
-				auxLinha = rowIndices[letters[1]-65];
-				if(auxLinha+1>4)
-					auxLinha=0;
+				auxLinha = columnIndices[letters[1]-65];
+				auxLinha--;
+				if(auxLinha<0)
+					auxLinha=4;
 				
-				aux+=digraph[rowIndices[letters[1]-65]][auxLinha];
+				aux+=digraph[columnIndices[letters[1]-65]][auxLinha];
 			}
 			else
 			{
 				//minha linha coluna da outra letra
 				//[coluna][linha]
 				
-				aux+=digraph[columnIndices[letters[0]-65]][rowIndices[letters[1]-65]]
-						+digraph[columnIndices[letters[1]-65]][rowIndices[letters[0]-65]];
+				aux+=digraph[columnIndices[letters[1]-65]][rowIndices[letters[0]-65]]
+						+digraph[columnIndices[letters[0]-65]][rowIndices[letters[1]-65]];
 			}
 		}
 		return aux;
+	}
+	
+	public String Decrypt(String txt)
+	{
+		String pairs[]=CreatePairs(txt);
+		
+		String aux="";
+		
+		for (int i = 0; i < pairs.length; i++) 
+		{
+			char[] letters=pairs[i].toCharArray();
+			
+			if(rowIndices[letters[0]-65]==rowIndices[letters[1]-65])
+			{
+				//Pegar a letra da direita imediata
+				//[coluna][linha]
+				int auxColuna = 0;
+				auxColuna = columnIndices[letters[0]-65];
+				auxColuna--;
+				if(auxColuna<0)
+					auxColuna=4;
+
+				aux+=digraph[auxColuna][rowIndices[letters[0]-65]];
+				
+				auxColuna = columnIndices[letters[1]-65];
+				auxColuna--;
+				if(auxColuna<0)
+					auxColuna=4;
+				
+				aux+=digraph[auxColuna][rowIndices[letters[1]-65]];
+			}
+			else if(columnIndices[letters[0]-65]==columnIndices[letters[1]-65])
+			{
+				//Pegar a letra imediata abaixo
+				//[coluna][linha]
+				int auxLinha = 0;
+				auxLinha = rowIndices[letters[0]-65];
+				auxLinha++;
+				if(auxLinha>4)
+					auxLinha=0;
+				
+				aux+=digraph[columnIndices[letters[0]-65]][auxLinha];
+				
+				auxLinha = rowIndices[letters[1]-65];
+				auxLinha++;
+				if(auxLinha>4)
+					auxLinha=0;
+				
+				aux+=digraph[columnIndices[letters[1]-65]][auxLinha];
+			}
+			else
+			{
+				//minha linha coluna da outra letra
+				//[coluna][linha]
+				
+				aux+=digraph[columnIndices[letters[1]-65]][rowIndices[letters[0]-65]]
+						+digraph[columnIndices[letters[0]-65]][rowIndices[letters[1]-65]];
+			}
+		}
+		
+		return txt;
 	}
 	
 }
