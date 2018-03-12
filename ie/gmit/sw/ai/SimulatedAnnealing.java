@@ -28,20 +28,28 @@ public class SimulatedAnnealing
 		int a= (int) (Math.random() * 100);
 		if(a<91)
 		{
-			SwapSingleLetters(1);
+			SwapRows();
 		}
 		else if(a<93)
 		{
-			SwapRows();
+			SwapColumns();
 		}
 		else if(a<95)
-		{}
+		{
+			FlipAllRows();
+		}
 		else if(a<97)
-		{}
+		{
+			FliapAllColumns();
+		}
 		else if(a<99)
-		{}
+		{
+			ReverseKey();
+		}
 		else
-		{}
+		{
+			SwapSingleLetters(1);
+		}
 		return "";
 	}
 	
@@ -202,6 +210,96 @@ public class SimulatedAnnealing
 		columnIndices[n1] ^= columnIndices[n2];
 		columnIndices[n2] ^= columnIndices[n1];
 		columnIndices[n1] ^= columnIndices[n2];*/
+		
+		cypher.setColumnIndices(columnIndices);
+		cypher.setDigraph(digraph);
+		cypher.setRowIndexes(rowIndices);
+	}
+
+	private void ReverseKey() //Skips changing middle char in a row since it will stay at the same place
+	{
+		int backi=4;
+		int backj=4;
+		for (int i = 0; i < 4; i++) 
+		{
+			for (int j = 0; j < 2; j++) 
+			{
+				char a,b;
+				digraph[i][j]^=digraph[backi][backj];
+				b=digraph[backi][backj]^=digraph[i][j];
+				a=digraph[i][j]^=digraph[backi][backj];
+				
+				rowIndices[a-65]^=rowIndices[b-65];
+				rowIndices[b-65]^=rowIndices[a-65];
+				rowIndices[a-65]^=rowIndices[b-65];
+				
+				columnIndices[a-65]^=columnIndices[b-65];
+				columnIndices[b-65]^=columnIndices[a-65];
+				columnIndices[a-65]^=columnIndices[b-65];
+				
+				backj--;
+			}
+			backj=4;
+			backi--;
+		}
+		
+		cypher.setColumnIndices(columnIndices);
+		cypher.setDigraph(digraph);
+		cypher.setRowIndexes(rowIndices);
+	}
+
+	private void FlipAllRows()
+	{
+		int backj=4;
+		for (int i = 0; i < 4; i++) 
+		{
+			for (int j = 0; j < 3; j++) 
+			{
+				char a,b;
+				digraph[i][j]^=digraph[i][backj];
+				b=digraph[i][backj]^=digraph[i][j];
+				a=digraph[i][j]^=digraph[i][backj];
+				
+				rowIndices[a-65]^=rowIndices[b-65];
+				rowIndices[b-65]^=rowIndices[a-65];
+				rowIndices[a-65]^=rowIndices[b-65];
+				
+				columnIndices[a-65]^=columnIndices[b-65];
+				columnIndices[b-65]^=columnIndices[a-65];
+				columnIndices[a-65]^=columnIndices[b-65];
+				backj--;
+			}
+			backj=0;
+		}
+		
+		cypher.setColumnIndices(columnIndices);
+		cypher.setDigraph(digraph);
+		cypher.setRowIndexes(rowIndices);
+	}
+
+	private void FliapAllColumns()
+	{
+		int backi=4;
+		for (int i = 0; i < 4; i++) 
+		{
+			for (int j = 0; j < 3; j++) 
+			{
+				char a,b;
+				digraph[j][i]^=digraph[backi][i];
+				b=digraph[backi][i]^=digraph[j][i];
+				a=digraph[j][i]^=digraph[backi][i];
+				
+				rowIndices[a-65]^=rowIndices[b-65];
+				rowIndices[b-65]^=rowIndices[a-65];
+				rowIndices[a-65]^=rowIndices[b-65];
+				
+				columnIndices[a-65]^=columnIndices[b-65];
+				columnIndices[b-65]^=columnIndices[a-65];
+				columnIndices[a-65]^=columnIndices[b-65];
+				backi--;
+			}
+			backi=0;
+		}
 		
 		cypher.setColumnIndices(columnIndices);
 		cypher.setDigraph(digraph);
