@@ -135,7 +135,7 @@ public class PlayfairCypher
 				int auxLinha = 0;
 				auxLinha = rowIndices[letters[0]-65];
 				auxLinha++;
-				System.out.println("L1:"+auxLinha);
+				//System.out.println("L1:"+auxLinha);
 				if(auxLinha>4)
 					auxLinha=0;
 				
@@ -143,7 +143,7 @@ public class PlayfairCypher
 				
 				auxLinha = rowIndices[letters[1]-65];
 				auxLinha++;
-				System.out.println("L2:"+auxLinha);
+				//System.out.println("L2:"+auxLinha);
 				if(auxLinha>4)
 					auxLinha=0;
 				
@@ -198,7 +198,7 @@ public class PlayfairCypher
 				int auxLinha = 0;
 				auxLinha = rowIndices[letters[0]-65];
 				auxLinha--;
-				System.out.println("L1:"+auxLinha);
+				//System.out.println("L1:"+auxLinha);
 				if(auxLinha<0)
 					auxLinha=4;
 				
@@ -206,7 +206,7 @@ public class PlayfairCypher
 				
 				auxLinha = rowIndices[letters[1]-65];
 				auxLinha--;
-				System.out.println("L2:"+auxLinha);
+				//System.out.println("L2:"+auxLinha);
 				if(auxLinha<0)
 					auxLinha=4;
 				
@@ -241,9 +241,6 @@ public class PlayfairCypher
 				aux+=""+digraph[columnIndices[letters[0]-65]][rowIndices[letters[1]-65]]
 						+""+digraph[columnIndices[letters[1]-65]][rowIndices[letters[0]-65]];
 				
-				/*rowIndices[letters[0]-65]^=rowIndices[letters[1]-65];
-				rowIndices[letters[1]-65]^=rowIndices[letters[0]-65];
-				rowIndices[letters[0]-65]^=rowIndices[letters[1]-65];*/
 			}
 		}
 		
@@ -267,15 +264,15 @@ public class PlayfairCypher
 	
 	public void printMatrix()
 	{
-		/*for (int i = 0; i < 5; i++) 
+		for (int i = 0; i < 5; i++) 
 		{
 			for (int j = 0; j < 5; j++)
 			{
 				System.out.print("\t"+digraph[i][j]);
 			}
 			System.out.println();
-		}*/
-		for (int i = 0; i < columnIndices.length; i++) 
+		}
+		/*for (int i = 0; i < columnIndices.length; i++) 
 		{
 			if(i%4==0)
 			{
@@ -283,19 +280,7 @@ public class PlayfairCypher
 			}
 			if(i==9) continue;
 			System.out.print("\t"+digraph[columnIndices[i]][rowIndices[i]]);
-		}
+		}*/
 	}
-	
-	public static void main(String[] args)
-	{
-		
-		PlayfairCypher cypher= new PlayfairCypher("THEQUICKBROWNFOXJUMPEDOVERTHELAZYDOGSS");
-		//cypher.printMatrix();
-		String tst =cypher.Encrypt("ARTIFICIALINTELLIGENCE");
-		System.out.println(tst);
-		tst=cypher.Decrypt(tst);
-		System.out.println(tst);
-	}
-	
 	
 }
