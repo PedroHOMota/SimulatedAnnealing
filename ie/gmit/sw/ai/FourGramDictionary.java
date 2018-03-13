@@ -19,7 +19,7 @@ public class FourGramDictionary
 		
 			while((line=reader.readLine())!=null)
 			{
-				dic.put(line.substring(line.indexOf(" ")+1), line.substring(0,line.indexOf(" ")-1));
+				dic.put(line.substring(0,line.indexOf(" ")),line.substring(line.indexOf(" ")+1));
 			}
 		} 
 		catch (Exception e) 
@@ -33,8 +33,14 @@ public class FourGramDictionary
 	{
 		if(dic.size()==0)
 			return -1;
-		
-		return Integer.parseInt(dic.get(txt));
+		try 
+		{
+			return Integer.parseInt(dic.get(txt));
+		}
+		catch (Exception e) 
+		{
+			return 0;
+		}
 	}
 
 	public int getSize()

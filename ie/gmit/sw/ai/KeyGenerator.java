@@ -8,7 +8,7 @@ public class KeyGenerator {
 	private static char[] key = {'A','B','C','D','E','F','G','H','I','K',
 			'L','M','N','O','P','Q','R','S','T','U','V','X','W','Y','Z'};
 	
-	public static char[] GenerateKey()
+	public static String GenerateKey()
 	{
 		int index;
 		Random random = ThreadLocalRandom.current();
@@ -22,7 +22,7 @@ public class KeyGenerator {
 				key[index] ^= key[i];
 			}
 		}
-		return key;
+		return String.valueOf(key);
 	}
 	
 }
