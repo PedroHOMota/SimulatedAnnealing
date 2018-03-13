@@ -8,19 +8,19 @@ import java.util.stream.Stream;
 
 public class SimulatedAnnealing 
 {
-	private final int NUMCHARTOREAD = 600;
+	private final int NUMCHARTOREAD = 500;
 	private char[][] digraph;
 	private int[] rowIndices;
 	private int[] columnIndices;
 	private PlayfairCypher cypher;
-	private String txt;
-	private float score=0;
+	private String txt="";
+	FourGramDictionary dic;
 	
-	public SimulatedAnnealing(char[][] digraph,int[] rowIndices,int[] columnIndices,String path)
+	public SimulatedAnnealing(String txtPath, String dicPath)
 	{
-		this.rowIndices=rowIndices;
-		this.columnIndices=columnIndices;
-		this.digraph=digraph;
+		txt=readText(txtPath);
+		dic= new FourGramDictionary(dicPath);
+		//System.out.println("Finish parsing "+dic.NGramScore("AACX"));
 	}
 	
 	private String ShuffleKey()
@@ -40,7 +40,7 @@ public class SimulatedAnnealing
 		}
 		else if(a<97)
 		{
-			FliapAllColumns();
+			FlipAllColumns();
 		}
 		else if(a<99)
 		{
@@ -50,25 +50,57 @@ public class SimulatedAnnealing
 		{
 			SwapSingleLetters(1);
 		}
-		return "";
+		
+		return cypher.toString();
 	}
 	
 	public void Execute()
 	{
+		double score = 0;
+		double delta = 0;
 		String decryptedText="";
-		char[] key = KeyGenerator.GenerateKey();
-		cypher=new PlayfairCypher(key.toString());
+		String key = KeyGenerator.GenerateKey();
+		cypher=new PlayfairCypher(key);
+		
+		this.rowIndices=cypher.getRowIndexes();
+		this.columnIndices=cypher.getColumnIndices();
+		this.digraph=cypher.getDigraph();
+		
+	
 		decryptedText=cypher.Decrypt(txt);
 		score=Score(decryptedText);
 		
+		PlayfairCypher aux;
 		for (int temp = 10; temp >0 ; temp--) 
 		{
 			for (int i = 50000; i > 0; i--) 
 			{
 				String newKey=ShuffleKey();
+				aux=new PlayfairCypher(newKey);
+				double newScore = Score(aux.Decrypt(txt));
+				delta = newScore - score;
 				
+				if(delta > 0)
+				{
+					cypher=aux;
+					score=newScore;
+					System.out.println(newKey);
+					System.out.println(score);
+				}
+				else 
+				{
+					double prob = Math.pow(Math.E, (-delta/temp));
+					if(prob>0.5)
+					{
+						cypher=aux;
+						score=newScore;
+					}
+				}
 			}
 		}
+		
+		System.out.println(cypher.toString());
+		System.out.println(cypher.Decrypt(txt));
 	}
 	
 	private String readText(String path)
@@ -78,10 +110,22 @@ public class SimulatedAnnealing
 			BufferedReader reader=new BufferedReader(new FileReader(path));
 			String line="";
 			
-			while((line=reader.readLine())!=null||txt.length()<NUMCHARTOREAD)
+			while((line=reader.readLine())!=null&&txt.length()<600)
 			{
-				txt+=line;
+				if(line.charAt(0)=='*')
+				{
+					for (int i = 0; i < 16; i++) //advancing the buffer to the start of the book
+					{
+						line=reader.readLine();
+					}
+					continue;
+					
+				}
+				txt+=line.substring(0,600);
+				System.out.println(txt.length());
 			}
+			
+			reader.close();
 			
 		} 
 		catch (Exception e) 
@@ -89,19 +133,31 @@ public class SimulatedAnnealing
 			e.printStackTrace();
 		}
 		
-		return "";
+		return txt;
 	}
 	
-	private float Score(String txt)
+	private double Score(String txt)
 	{
-		
-		return 0.0f;
+		double score = 0.0;
+		String aux="";
+		for (int i = 0; i < txt.length()-3; i++) 
+		{
+			aux=""+txt.charAt(i)+txt.charAt(i+1)+txt.charAt(i+2)+txt.charAt(i+3);
+			score+=Math.log10(dic.NGramScore(aux));
+		}
+		return score;
 	}
 
 	private void SwapSingleLetters(int numberOfChanges)
 	{
-		Random r = new Random();
-
+		Random r=null;
+		try {
+		r = new Random();
+		}
+		catch(Exception e)
+		{
+			System.out.println(e.getMessage());
+		}
 		for (int i = 0; i < numberOfChanges; i++) 
 		{
 			int n1= r.nextInt(25);
@@ -142,13 +198,13 @@ public class SimulatedAnnealing
 			a=digraph[r1][i];
 			b=digraph[r2][i];
 			
-			rowIndices[a] ^= rowIndices[b];
-			rowIndices[b] ^= rowIndices[a];
-			rowIndices[a] ^= rowIndices[b];
+			rowIndices[a-65] ^= rowIndices[b-65];
+			rowIndices[b-65] ^= rowIndices[a-65];
+			rowIndices[a-65] ^= rowIndices[b-65];
 
-			columnIndices[a] ^= columnIndices[b];
-			columnIndices[b] ^= columnIndices[a];
-			columnIndices[a] ^= columnIndices[b];
+			columnIndices[a-65] ^= columnIndices[b-65];
+			columnIndices[b-65] ^= columnIndices[a-65];
+			columnIndices[a-65] ^= columnIndices[b-65];
 			
 			digraph[r1][i]=b;
 			digraph[r2][i]=a;
@@ -187,13 +243,13 @@ public class SimulatedAnnealing
 			a=digraph[i][r1];
 			b=digraph[i][r2];
 			
-			rowIndices[a] ^= rowIndices[b];
-			rowIndices[b] ^= rowIndices[a];
-			rowIndices[a] ^= rowIndices[b];
+			rowIndices[a-65] ^= rowIndices[b-65];
+			rowIndices[b-65] ^= rowIndices[a-65];
+			rowIndices[a-65] ^= rowIndices[b-65];
 
-			columnIndices[a] ^= columnIndices[b];
-			columnIndices[b] ^= columnIndices[a];
-			columnIndices[a] ^= columnIndices[b];
+			columnIndices[a-65] ^= columnIndices[b-65];
+			columnIndices[b-65] ^= columnIndices[a-65];
+			columnIndices[a-65] ^= columnIndices[b-65];
 			
 			digraph[i][r1]=b;
 			digraph[i][r2]=a;
@@ -257,9 +313,15 @@ public class SimulatedAnnealing
 			{
 				char a,b;
 				digraph[i][j]^=digraph[i][backj];
-				b=digraph[i][backj]^=digraph[i][j];
-				a=digraph[i][j]^=digraph[i][backj];
+				digraph[i][backj]^=digraph[i][j];
+				digraph[i][j]^=digraph[i][backj];
 				
+				System.out.println(digraph[i][j]);
+				b=digraph[i][j];
+				System.out.println(digraph[i][backj]);
+				a=digraph[i][backj];
+				
+				rowIndices[a-65]^=rowIndices[b-65];
 				rowIndices[a-65]^=rowIndices[b-65];
 				rowIndices[b-65]^=rowIndices[a-65];
 				rowIndices[a-65]^=rowIndices[b-65];
@@ -269,7 +331,7 @@ public class SimulatedAnnealing
 				columnIndices[a-65]^=columnIndices[b-65];
 				backj--;
 			}
-			backj=0;
+			backj=4;
 		}
 		
 		cypher.setColumnIndices(columnIndices);
@@ -277,7 +339,7 @@ public class SimulatedAnnealing
 		cypher.setRowIndexes(rowIndices);
 	}
 
-	private void FliapAllColumns()
+	private void FlipAllColumns()
 	{
 		int backi=4;
 		for (int i = 0; i < 4; i++) 
@@ -286,8 +348,31 @@ public class SimulatedAnnealing
 			{
 				char a,b;
 				digraph[j][i]^=digraph[backi][i];
-				b=digraph[backi][i]^=digraph[j][i];
-				a=digraph[j][i]^=digraph[backi][i];
+				digraph[backi][i]^=digraph[j][i];
+				digraph[j][i]^=digraph[backi][i];
+				try 
+				{
+					System.out.println("FlipAllColumns " +digraph[i][j]);
+					System.out.println("FlipAllColumns "+digraph[i][backi]);
+					
+					a=digraph[i][backi];
+					b=digraph[i][j];
+					
+					rowIndices[a-65]^=rowIndices[b-65];
+					rowIndices[b-65]^=rowIndices[a-65];
+					rowIndices[a-65]^=rowIndices[b-65];
+					
+					columnIndices[a-65]^=columnIndices[b-65];
+					columnIndices[b-65]^=columnIndices[a-65];
+					columnIndices[a-65]^=columnIndices[b-65];
+				} catch (Exception e) 
+				{
+					cypher.printMatrix();
+					System.out.println(e.getMessage());
+					
+				}
+				/*a=digraph[i][backi];
+				b=digraph[i][j];
 				
 				rowIndices[a-65]^=rowIndices[b-65];
 				rowIndices[b-65]^=rowIndices[a-65];
@@ -295,14 +380,20 @@ public class SimulatedAnnealing
 				
 				columnIndices[a-65]^=columnIndices[b-65];
 				columnIndices[b-65]^=columnIndices[a-65];
-				columnIndices[a-65]^=columnIndices[b-65];
+				columnIndices[a-65]^=columnIndices[b-65];*/
 				backi--;
 			}
-			backi=0;
+			backi=4;
 		}
 		
 		cypher.setColumnIndices(columnIndices);
 		cypher.setDigraph(digraph);
 		cypher.setRowIndexes(rowIndices);
+	}
+
+	public static void main(String[] args)
+	{
+		SimulatedAnnealing sm = new SimulatedAnnealing("D:\\Hobbit.txt","D:\\4grams.txt");
+		sm.Execute();
 	}
 }
