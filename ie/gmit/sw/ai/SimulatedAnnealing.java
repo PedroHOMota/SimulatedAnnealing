@@ -8,25 +8,24 @@ import java.util.stream.Stream;
 
 public class SimulatedAnnealing 
 {
-	private final int NUMCHARTOREAD = 500;
+	private final int NUMCHARTOREAD = 300;
 	private char[][] digraph;
-	private int[] rowIndices;
-	private int[] columnIndices;
-	private PlayfairCypher cypher;
 	private String txt="";
 	FourGramDictionary dic;
+	
+	long startTime = System.currentTimeMillis();
 	
 	public SimulatedAnnealing(String txtPath, String dicPath)
 	{
 		txt=readText(txtPath);
 		dic= new FourGramDictionary(dicPath);
-		//System.out.println("Finish parsing "+dic.NGramScore("AACX"));
 	}
 	
 	private String ShuffleKey(String key)
 	{
 		int a= (int) (Math.random() * 100);
 		String aux;
+		//System.out.println("key before shuffle: "+key);
 		switch(a)
 		{
 		case 1:
@@ -79,6 +78,7 @@ public class SimulatedAnnealing
 			ReverseKey();
 		}*/
 		
+		//System.out.println("key after shuffle: "+aux);
 		return aux;
 	}
 	
@@ -88,21 +88,18 @@ public class SimulatedAnnealing
 		double delta = 0;
 		String decryptedText="";
 		String key = KeyGenerator.GenerateKey();
-		cypher=new PlayfairCypher(key);
+		PlayfairCypher cypher=new PlayfairCypher(key);
 		
-		//cypher.printMatrix();
-		this.rowIndices=cypher.getRowIndexes();
-		this.columnIndices=cypher.getColumnIndices();
 		this.digraph=cypher.getDigraph();
 		
 	
 		decryptedText=cypher.Decrypt(txt);
 		score=Score(decryptedText);
-		
+		int c=0;
 		PlayfairCypher aux;
 		for (int temp = 10; temp >0 ; temp--) 
 		{
-			for (int i = 50000; i > 0; i--) 
+			for (int i = 30000; i > 0; i--) 
 			{
 				String newKey=ShuffleKey(key);
 				aux=new PlayfairCypher(newKey);
@@ -110,33 +107,37 @@ public class SimulatedAnnealing
 				delta = newScore - score;
 				if(delta > 0)
 				{
-					System.out.println(score);
-					System.out.println(newScore);
-					//cypher=aux;
+					//System.out.println(score);
+					//System.out.println(newScore);
 					key=newKey;
 					score=newScore;
-					System.out.println(newKey);
-					
+					/*System.out.println("Old: "+key);
+					System.out.println("New: "+newKey);*/
 				}
 				else 
 				{
 					Random r = new Random();
-					double prob = Math.pow(Math.E,-delta/temp);
-					if(prob>r.nextInt(100)/100)
+					double prob = Math.pow(Math.E,delta/temp);
+					//System.out.println("prob: "+prob);
+					if(prob>0.5)
 					{
+						c++;
 						key=newKey;
-						//cypher=aux;
 						score=newScore;
 					}
-					
 				}
-				
-				//System.out.println(score);
 			}
+			System.out.println("TEMP: "+temp+" Worst: "+c+"\n\n");
+			c=0;
 		}
 		
+		cypher=new PlayfairCypher(key);
 		System.out.println(cypher.toString());
 		System.out.println(cypher.Decrypt(txt));
+		
+		long stopTime = System.currentTimeMillis();
+	    long elapsedTime = stopTime - startTime;
+	      System.out.println(elapsedTime/10);
 	}
 	
 	private String readText(String path)
@@ -146,7 +147,7 @@ public class SimulatedAnnealing
 			BufferedReader reader=new BufferedReader(new FileReader(path));
 			String line="";
 			
-			while((line=reader.readLine())!=null&&txt.length()<600)
+			while((line=reader.readLine())!=null&&txt.length()<NUMCHARTOREAD)
 			{
 				if(line.charAt(0)=='*')
 				{
@@ -157,7 +158,7 @@ public class SimulatedAnnealing
 					continue;
 					
 				}
-				txt+=line.substring(0,600);
+				txt+=line.substring(0,NUMCHARTOREAD);
 				System.out.println(txt.length());
 			}
 			
@@ -193,56 +194,7 @@ public class SimulatedAnnealing
 	    key[n1]= key[n2];
 	    key[n2] = temp;
 		
-		//cypher.printMatrix();
-		
-		/*digraph=cypher.getDigraph();
-		rowIndices=cypher.getRowIndexes();
-		columnIndices=cypher.getColumnIndices();
-		char [] aux = cypher.toString().toCharArray();
-		//System.out.println("FromSwapLetter");
-		for (int i = 0; i < numberOfChanges; i++) 
-		{
-			int n1= r.nextInt(25);
-			int n2= r.nextInt(25);
-			while(n1==n2) n2=r.nextInt(25);
-			
-			aux[n1]^=aux[n2];
-			aux[n2]^=aux[n1];
-			aux[n1]^=aux[n2];
-			/*while(n1==9) n1= r.nextInt(25);
-			
-			while(n2==9) n2= r.nextInt(25);
-			
-			while(n2==n1||n2!=9) n2= r.nextInt(25);
-			System.out.println(n1);
-			System.out.println(n2);
-			digraph[rowIndices[n1]][columnIndices[n1]]^=digraph[rowIndices[n2]][columnIndices[n2]];
-			digraph[rowIndices[n2]][columnIndices[n2]]^=digraph[rowIndices[n1]][columnIndices[n1]];
-			digraph[rowIndices[n1]][columnIndices[n1]]^=digraph[rowIndices[n2]][columnIndices[n2]];
-			*/
-			/*rowIndices[n1]^=rowIndices[n2];
-			rowIndices[n2]^=rowIndices[n1];
-			rowIndices[n1]^=rowIndices[n2];
-			
-			columnIndices[n1]^=columnIndices[n2];
-			columnIndices[n2]^=columnIndices[n1];
-			columnIndices[n1]^=columnIndices[n2];*/
-		
-		
-		
-		/*cypher.setColumnIndices(columnIndices);
-		cypher.setDigraph(digraph);
-		cypher.setRowIndexes(rowIndices);*/
-		//System.out.println(cypher.toString());
-		
-		//cypher= new PlayfairCypher(String.valueOf(key));
-		
-		//cypher.printMatrix();
-		//System.out.println("FromSwapLetter");
-		//rowIndices = cypher.getRowIndexes();
-		//columnIndices = cypher.getColumnIndices();
-	    
-	    return String.valueOf(key);
+		return String.valueOf(key);
 	}
 
 	private String SwapRows(char[] key)
@@ -253,6 +205,7 @@ public class SimulatedAnnealing
 		int i = r.nextInt(5);
 		int j = r.nextInt(5);
 		
+		while(i==j) j = r.nextInt(5);
 		char temp;
 		for(int k=0;k<5;k++)
 		{
@@ -260,53 +213,6 @@ public class SimulatedAnnealing
 	        key[i*5 + k] = key[j*5 + k];
 	        key[j*5 + k] = temp;
 	    }
-		/*char a,b;
-		
-		while(r1==r2) r2 = r.nextInt(5);
-		
-		digraph=cypher.getDigraph();
-		//System.out.println("Key before row swap: "+cypher.toString());
-		//for (int i = 0; i < 5; i++) 
-		//{
-			char[] temp = digraph[r1];
-			digraph[r1]=digraph[r2];
-			digraph[r2]=temp;
-		//}
-		cypher.setDigraph(digraph);
-		//System.out.println("Key after row swap: "+cypher.toString());
-		
-		cypher = new PlayfairCypher(cypher.toString());
-		
-		rowIndices = cypher.getRowIndexes();
-		columnIndices = cypher.getColumnIndices();
-		/*char[] temp = digraph[r1];
-		digraph[r1]=digraph[r2];
-		digraph[r2]=temp;*/
-		
-		/*for (int i = 0; i < 5; i++) 
-		{
-			a=digraph[r1][i];
-			b=digraph[r2][i];
-			
-			rowIndices[a-65] ^= rowIndices[b-65];
-			rowIndices[b-65] ^= rowIndices[a-65];
-			rowIndices[a-65] ^= rowIndices[b-65];
-
-			columnIndices[a-65] ^= columnIndices[b-65];
-			columnIndices[b-65] ^= columnIndices[a-65];
-			columnIndices[a-65] ^= columnIndices[b-65];
-			
-			digraph[r1][i]=b;
-			digraph[r2][i]=a;
-			//digraph[r1][i]
-		}
-		
-		
-		cypher.setColumnIndices(columnIndices);
-		cypher.setDigraph(digraph);
-		cypher.setRowIndexes(rowIndices);*/
-		
-		//cypher=new PlayfairCypher(String.valueOf(key));
 		
 		return String.valueOf(key);
 	}
@@ -318,45 +224,20 @@ public class SimulatedAnnealing
 
 		int i = r.nextInt(5);
 		int j = r.nextInt(5);
+		
+		while(i==j) j = r.nextInt(5);
+		
+		
 		char[] tempKey = key.toCharArray();
 		char temp;
 		for(int k=0;k<5;k++)
 		{
-	        temp = tempKey[i*5 + k];
-	        tempKey[i*5 + k] = tempKey[j*5 + k];
-	        tempKey[j*5 + k] = temp;
+			temp = tempKey[k*5 + i];
+			tempKey[k*5 + i] = tempKey[k*5 + j];
+			tempKey[k*5 + j] = temp;
 	    }
-		
-		
-		/*char[] temp = digraph[r1];
-		digraph[r1]=digraph[r2];
-		digraph[r2]=temp;*/
-		/*digraph=cypher.getDigraph();
-		rowIndices=cypher.getRowIndexes();
-		columnIndices=cypher.getColumnIndices();
-		for (int i = 0; i < 5; i++) 
-		{
-			a=digraph[i][r1];
-			b=digraph[i][r2];
-			
-			rowIndices[a-65] ^= rowIndices[b-65];
-			rowIndices[b-65] ^= rowIndices[a-65];
-			rowIndices[a-65] ^= rowIndices[b-65];
-
-			columnIndices[a-65] ^= columnIndices[b-65];
-			columnIndices[b-65] ^= columnIndices[a-65];
-			columnIndices[a-65] ^= columnIndices[b-65];
-			
-			digraph[i][r1]=b;
-			digraph[i][r2]=a;
-		}
-		
-		/*cypher.setColumnIndices(columnIndices);
-		cypher.setDigraph(digraph);
-		cypher.setRowIndexes(rowIndices);*/
-		
-		//cypher = new PlayfairCypher(String.valueOf(tempKey));
-		
+		//PlayfairCypher a = new PlayfairCypher(key);
+		//a=new PlayfairCypher(String.valueOf(tempKey));
 		return String.valueOf(tempKey);
 	}
 
@@ -369,50 +250,8 @@ public class SimulatedAnnealing
 		{
 			aux+=key.charAt(i);
 		}
-		//FlipAllRows();
-		//FlipAllColumns();
-		/*cypher.printMatrix();
-		int backi=4;
-		int backj=4;
-		for (int i = 0; i < 4; i++) 
-		{
-			for (int j = 0; j < 2; j++) 
-			{
-				char a,b,tsta,tstb;
-				
-				tsta=digraph[i][j];
-				tstb=digraph[backi][backj];
-				
-				digraph[i][j]^=digraph[backi][backj];
-				digraph[backi][backj]^=digraph[i][j];
-				digraph[i][j]^=digraph[backi][backj];
-				
-				b=digraph[backi][backj];
-				a=digraph[i][j];
-				
-				rowIndices[a-65]^=rowIndices[b-65];
-				rowIndices[b-65]^=rowIndices[a-65];
-				rowIndices[a-65]^=rowIndices[b-65];
-				
-				columnIndices[a-65]^=columnIndices[b-65];
-				columnIndices[b-65]^=columnIndices[a-65];
-				columnIndices[a-65]^=columnIndices[b-65];
-				
-				backj--;
-			}
-			backj=4;
-			backi--;
-		}
 		
-		cypher.setColumnIndices(columnIndices);
-		cypher.setDigraph(digraph);
-		cypher.setRowIndexes(rowIndices);*/
-		
-		//cypher=new PlayfairCypher(aux);
-		//rowIndices = cypher.getRowIndexes();
-		//columnIndices = cypher.getColumnIndices();
-		
-		return String.valueOf(aux);
+		return aux;
 	}
 
 	private String FlipAllRows(String key)
@@ -444,12 +283,6 @@ public class SimulatedAnnealing
 			}
 		}
 		
-		/*cypher.setColumnIndices(columnIndices);
-		cypher.setDigraph(digraph);
-		cypher.setRowIndexes(rowIndices);*/
-		/*cypher= new PlayfairCypher(cypher.toString());
-		rowIndices = cypher.getRowIndexes();
-		columnIndices = cypher.getColumnIndices();*/
 		aux.setDigraph(digraph);
 		return aux.toString();
 	}
@@ -466,50 +299,6 @@ public class SimulatedAnnealing
 			digraph[4-i]=digraph[i];
 			digraph[i]=aux;
 		}
-		//cypher.printMatrix();
-		/*int backi=4;
-		for (int i = 0; i < 4; i++) 
-		{
-			for (int j = 0; j < 3; j++) 
-			{
-				char a,b;
-				
-				digraph[j][i]^=digraph[backi][i];
-				digraph[backi][i]^=digraph[j][i];
-				digraph[j][i]^=digraph[backi][i];
-				
-				a=digraph[i][backi];
-				b=digraph[i][j];
-
-				rowIndices[a-65]^=rowIndices[b-65];
-				rowIndices[b-65]^=rowIndices[a-65];
-				rowIndices[a-65]^=rowIndices[b-65];
-
-				columnIndices[a-65]^=columnIndices[b-65];
-				columnIndices[b-65]^=columnIndices[a-65];
-				columnIndices[a-65]^=columnIndices[b-65];
-				
-				/*a=digraph[i][backi];
-				b=digraph[i][j];
-				
-				rowIndices[a-65]^=rowIndices[b-65];
-				rowIndices[b-65]^=rowIndices[a-65];
-				rowIndices[a-65]^=rowIndices[b-65];
-				
-				columnIndices[a-65]^=columnIndices[b-65];
-				columnIndices[b-65]^=columnIndices[a-65];
-				columnIndices[a-65]^=columnIndices[b-65];*/
-				/*backi--;
-			}
-			backi=4;
-		}*/
-		
-		//cypher.setColumnIndices(columnIndices);
-		//cypher.setDigraph(digraph);
-		//cypher.setRowIndexes(rowIndices);
-		/*cypher= new PlayfairCypher(cypher.toString());
-		rowIndices = cypher.getRowIndexes();
-		columnIndices = cypher.getColumnIndices();*/
 		
 		temp.setDigraph(digraph);
 		
