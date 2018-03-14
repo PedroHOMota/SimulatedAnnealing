@@ -7,6 +7,7 @@ import java.util.Map;
 
 public class FourGramDictionary 
 {
+	private long size = 0l;
 	private static Map<String, String> dic=new HashMap<String, String>();
 	
 	public FourGramDictionary(String path) 
@@ -20,6 +21,7 @@ public class FourGramDictionary
 			while((line=reader.readLine())!=null)
 			{
 				dic.put(line.substring(0,line.indexOf(" ")),line.substring(line.indexOf(" ")+1));
+				size+=Long.parseLong(line.substring(line.indexOf(" ")+1));
 			}
 		} 
 		catch (Exception e) 
@@ -29,13 +31,13 @@ public class FourGramDictionary
 		}
 	}
 	
-	public int NGramScore(String txt)
+	public double NGramScore(String txt)
 	{
 		if(dic.size()==0)
 			return -1;
 		try 
 		{
-			return Integer.parseInt(dic.get(txt));
+			return Math.log10(Double.parseDouble(dic.get(txt)))/Math.log10(size);
 		}
 		catch (Exception e) 
 		{
