@@ -34,7 +34,7 @@ public class PlayfairCypher
 	
 	public char[][] getDigraph()
 	{
-		return digraph;
+		return this.digraph;
 	}
 	public void setDigraph(char[][] digraph)
 	{
@@ -75,7 +75,12 @@ public class PlayfairCypher
 		//System.out.println(txt.length());		
 		for(int i=0;counter<25;i++)
 		{
-			//System.out.println(txt.charAt(i)+""+(txt.charAt(i)-65));
+			/*try{System.out.println(txt.charAt(i)+""+(txt.charAt(i)-65));}
+			catch(Exception e)
+			{
+				printMatrix();
+				System.out.println(e.getMessage());
+			}*/
 			if(rowIndices[txt.charAt(i)-65]==-1)
 			{
 				if(ri==5)
@@ -272,6 +277,7 @@ public class PlayfairCypher
 			}
 			System.out.println();
 		}
+		System.out.println();
 		/*for (int i = 0; i < columnIndices.length; i++) 
 		{
 			if(i%4==0)

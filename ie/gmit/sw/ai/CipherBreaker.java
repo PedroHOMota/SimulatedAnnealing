@@ -1,21 +1,26 @@
 package ie.gmit.sw.ai;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.Random;
+import java.util.Scanner;
 import java.util.stream.Stream;
 
-public class SimulatedAnnealing 
+public class CipherBreaker 
 {
-	private final int NUMCHARTOREAD = 300;
+	private final int NUMCHARTOREAD = 380;
 	private char[][] digraph;
 	private String txt="";
 	FourGramDictionary dic;
 	
+	
 	long startTime = System.currentTimeMillis();
 	
-	public SimulatedAnnealing(String txtPath, String dicPath)
+	public CipherBreaker(String txtPath, String dicPath)
 	{
 		txt=readText(txtPath);
 		dic= new FourGramDictionary(dicPath);
@@ -25,7 +30,6 @@ public class SimulatedAnnealing
 	{
 		int a= (int) (Math.random() * 100);
 		String aux;
-		//System.out.println("key before shuffle: "+key);
 		switch(a)
 		{
 		case 1:
@@ -99,7 +103,7 @@ public class SimulatedAnnealing
 		PlayfairCypher aux;
 		for (int temp = 10; temp >0 ; temp--) 
 		{
-			for (int i = 30000; i > 0; i--) 
+			for (int i = 50000; i > 0; i--) 
 			{
 				String newKey=ShuffleKey(key);
 				aux=new PlayfairCypher(newKey);
@@ -107,12 +111,8 @@ public class SimulatedAnnealing
 				delta = newScore - score;
 				if(delta > 0)
 				{
-					//System.out.println(score);
-					//System.out.println(newScore);
 					key=newKey;
 					score=newScore;
-					/*System.out.println("Old: "+key);
-					System.out.println("New: "+newKey);*/
 				}
 				else 
 				{
@@ -127,7 +127,8 @@ public class SimulatedAnnealing
 					}
 				}
 			}
-			System.out.println("TEMP: "+temp+" Worst: "+c+"\n\n");
+			System.out.println("TEMP: "+temp+" Score: "+score+"\n");
+			if(score>190) temp=-1;
 			c=0;
 		}
 		
@@ -137,7 +138,7 @@ public class SimulatedAnnealing
 		
 		long stopTime = System.currentTimeMillis();
 	    long elapsedTime = stopTime - startTime;
-	      System.out.println(elapsedTime/10);
+	    System.out.println("\nTime taken: "+elapsedTime/10);
 	}
 	
 	private String readText(String path)
@@ -307,7 +308,14 @@ public class SimulatedAnnealing
 
 	public static void main(String[] args)
 	{
-		SimulatedAnnealing sm = new SimulatedAnnealing("D:\\Hobbit.txt","D:\\4grams.txt");
+		Scanner scan = new Scanner(System.in);
+		System.out.println("Enter book's path");
+		String book = scan.nextLine();
+		System.out.println("Enter 4gram's path");
+		String fourGram = scan.nextLine();
+		
+		scan.close();
+		CipherBreaker sm = new CipherBreaker(book,fourGram);
 		sm.Execute();
 	}
 }
