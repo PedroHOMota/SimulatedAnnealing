@@ -23,6 +23,8 @@ public class FourGramDictionary
 				dic.put(line.substring(0,line.indexOf(" ")),line.substring(line.indexOf(" ")+1));
 				size+=Long.parseLong(line.substring(line.indexOf(" ")+1));
 			}
+			
+			reader.close();
 		} 
 		catch (Exception e) 
 		{
