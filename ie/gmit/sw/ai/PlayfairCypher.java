@@ -3,9 +3,6 @@ package ie.gmit.sw.ai;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import javax.swing.plaf.synth.SynthOptionPaneUI;
-
-
 public class PlayfairCypher 
 {
 	private int[] rowIndices = {-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,
@@ -17,19 +14,7 @@ public class PlayfairCypher
 	public PlayfairCypher(String key) 
 	{
 		getDistinctsChars(key);
-		/*key=getDistinctsChars(key);
-		char[] aux=key.toCharArray();
-		int iArray=0;*/
-		
-		/*for (int i = 0; i < columnIndices.length; i++) 
-		{
-			for (int j = 0; j < columnIndices.length; j++) 
-			{
-				columnIndices[aux[iArray]-65]=i;
-				rowIndices[aux[iArray]-65]=j;
-				digraph[i][j]=aux[iArray];
-			}
-		}*/
+
 	}
 	
 	public char[][] getDigraph()
@@ -72,15 +57,9 @@ public class PlayfairCypher
 		{
 			txt=txt.replace(m.group(0), m.group(0).charAt(0) + "X");
 		}
-		//System.out.println(txt.length());		
+		
 		for(int i=0;counter<25;i++)
 		{
-			/*try{System.out.println(txt.charAt(i)+""+(txt.charAt(i)-65));}
-			catch(Exception e)
-			{
-				printMatrix();
-				System.out.println(e.getMessage());
-			}*/
 			if(rowIndices[txt.charAt(i)-65]==-1)
 			{
 				if(ri==5)

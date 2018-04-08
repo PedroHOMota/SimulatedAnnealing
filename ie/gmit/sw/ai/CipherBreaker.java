@@ -14,7 +14,7 @@ public class CipherBreaker
 
 	long startTime = System.currentTimeMillis();
 	
-	public CipherBreaker(String txtPath, String dicPath)
+	public CipherBreaker(String txtPath, String dicPath) throws Exception
 	{
 		txt=readText(txtPath);
 		dic= new FourGramDictionary(dicPath);
@@ -86,10 +86,9 @@ public class CipherBreaker
 	    System.out.println("\nTime taken: "+elapsedTime/10);
 	}
 	
-	private String readText(String path)
+	private String readText(String path) throws Exception
 	{
-		try 
-		{
+		
 			BufferedReader reader=new BufferedReader(new FileReader(path));
 			String line="";
 			
@@ -110,11 +109,7 @@ public class CipherBreaker
 			
 			reader.close();
 			
-		} 
-		catch (Exception e) 
-		{
-			e.printStackTrace();
-		}
+		
 		
 		return txt;
 	}
@@ -136,14 +131,28 @@ public class CipherBreaker
 	public static void main(String[] args)
 	{
 		Scanner scan = new Scanner(System.in);
-		System.out.println("Enter book's path");
+		System.out.println("Enter book's name");
 		String book = scan.nextLine();
-		System.out.println("Enter 4gram's path");
+		System.out.println("Enter 4gram's name");
 		String fourGram = scan.nextLine();
 		
+		if(!book.matches(".txt"))
+			book+=".txt";
+		if(!fourGram.matches(".txt"))
+			fourGram+=".txt";
 		scan.close();
-		CipherBreaker sm = new CipherBreaker(book,fourGram);
+		
+		CipherBreaker sm;
+		try 
+		{
+			sm = new CipherBreaker(book,fourGram);
+			sm.Execute();
+		} 
+		catch (Exception e) 
+		{
+			System.out.println("File not found");
+		}
 		//CipherBreaker sm = new CipherBreaker("Hobbit.txt","4grams.txt");
-		sm.Execute();
+		
 	}
 }

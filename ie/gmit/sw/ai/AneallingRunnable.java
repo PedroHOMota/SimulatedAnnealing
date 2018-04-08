@@ -36,7 +36,7 @@ public class AneallingRunnable implements Runnable
 			else 
 			{
 				double prob = Math.pow(Math.E,delta/temp);
-				if(prob>0.5)
+				if(prob>0.6)
 				{
 					key=newKey;
 					score=newScore;
