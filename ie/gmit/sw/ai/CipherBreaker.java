@@ -1,23 +1,22 @@
 package ie.gmit.sw.ai;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.Random;
 import java.util.Scanner;
-
+import java.util.stream.Stream;
 
 public class CipherBreaker 
 {
-	private final int NUMCHARTOREAD = 400;
+	private final int NUMCHARTOREAD = 380;
 	private char[][] digraph;
 	private String txt="";
 	FourGramDictionary dic;
 	
-	private double scoreT1=0;
-	private double scoreT2=0;
-	
-	private String keyT1="";
-	private String keyT2="";
 	
 	long startTime = System.currentTimeMillis();
 	
@@ -25,11 +24,9 @@ public class CipherBreaker
 	{
 		txt=readText(txtPath);
 		dic= new FourGramDictionary(dicPath);
-		SimulatedAnnealing sa = new SimulatedAnnealing();
-		sa.setFourGramDictionary(dic);
 	}
 	
-	/*private String ShuffleKey(String key)
+	private String ShuffleKey(String key)
 	{
 		int a= (int) (Math.random() * 100);
 		String aux;
@@ -60,62 +57,53 @@ public class CipherBreaker
 			aux=SwapSingleLetters(key.toCharArray());
 			break;
 		}
+		/*if(a<89)
+		{
+			SwapSingleLetters(1);
+		}
+		else if(a<91)
+		{
+			SwapRows();
+		}
+		else if(a<93)
+		{
+			SwapColumns();
+		}
+		else if(a<95)
+		{
+			FlipAllRows();
+		}
+		else if(a<97)
+		{
+			FlipAllColumns();
+		}
+		else //if(a<99)
+		{
+			ReverseKey();
+		}*/
 		
+		//System.out.println("key after shuffle: "+aux);
 		return aux;
-	}*/
+	}
 	
 	public void Execute()
 	{
-		//double score = 0;
+		double score = 0;
 		double delta = 0;
 		String decryptedText="";
 		String key = KeyGenerator.GenerateKey();
 		PlayfairCypher cypher=new PlayfairCypher(key);
-		int temp = 11;
 		
 		this.digraph=cypher.getDigraph();
 		
 	
 		decryptedText=cypher.Decrypt(txt);
-		double score=Score(decryptedText);
-
+		score=Score(decryptedText);
+		int c=0;
 		PlayfairCypher aux;
-		Thread t1;
-		Thread t2;
-		for (; temp >0 ; temp--) 
+		for (int temp = 10; temp >0 ; temp--) 
 		{
-			System.out.println("TEMP "+temp);
-			//Runnable r = new AneallingRunnable(key,score,temp,keyT1,scoreT1,txt);
-			Runnable r = new AneallingRunnable(key,score,temp,txt,1);
-			Runnable r2 = new AneallingRunnable(key,score,temp,txt,2);
-			t1 = new Thread(r);
-			t2=new Thread(r2);
-			t1.start();
-			t2.start();
-			
-			try
-			{
-				t1.join();
-				t2.join();
-			}catch (Exception e) {
-				// TODO: handle exception
-			}
-			if(SharedDataBetweenThreads.scoreT1>SharedDataBetweenThreads.scoreT2)
-				{
-					score=SharedDataBetweenThreads.scoreT1;
-					key=SharedDataBetweenThreads.keyT1;
-				}
-			else
-			{
-				score=SharedDataBetweenThreads.scoreT2;
-				key=SharedDataBetweenThreads.keyT2;
-			}
-			System.out.println("TEMP: "+temp+" Score: "+score+"\n");
-			SharedDataBetweenThreads.scoreT1=0;
-			SharedDataBetweenThreads.scoreT2=0;
-			
-			if(score>190) temp=-1;
-			/*for (int i = 40000; i > 0; i--) 
+			for (int i = 50000; i > 0; i--) 
 			{
 				String newKey=ShuffleKey(key);
 				aux=new PlayfairCypher(newKey);
@@ -130,16 +118,18 @@ public class CipherBreaker
 				{
 					Random r = new Random();
 					double prob = Math.pow(Math.E,delta/temp);
-					if(prob>0.6)
+					//System.out.println("prob: "+prob);
+					if(prob>0.5)
 					{
+						c++;
 						key=newKey;
 						score=newScore;
 					}
 				}
 			}
 			System.out.println("TEMP: "+temp+" Score: "+score+"\n");
-			if(score>190) temp=-1;*/
-	
+			if(score>190) temp=-1;
+			c=0;
 		}
 		
 		cypher=new PlayfairCypher(key);
@@ -196,7 +186,7 @@ public class CipherBreaker
 		return score;
 	}
 
-	/*private String SwapSingleLetters(char[] key)
+	private String SwapSingleLetters(char[] key)
 	{
 		Random r=  new Random();
 		int n1= r.nextInt(25);
@@ -291,7 +281,7 @@ public class CipherBreaker
 				columnIndices[a-65]^=columnIndices[b-65];
 				columnIndices[b-65]^=columnIndices[a-65];
 				columnIndices[a-65]^=columnIndices[b-65];*/
-			/*}
+			}
 		}
 		
 		aux.setDigraph(digraph);
@@ -314,19 +304,18 @@ public class CipherBreaker
 		temp.setDigraph(digraph);
 		
 		return temp.toString();
-	}*/
+	}
 
 	public static void main(String[] args)
 	{
-		/*Scanner scan = new Scanner(System.in);
+		Scanner scan = new Scanner(System.in);
 		System.out.println("Enter book's path");
 		String book = scan.nextLine();
 		System.out.println("Enter 4gram's path");
 		String fourGram = scan.nextLine();
 		
-		scan.close();*/
-		//CipherBreaker sm = new CipherBreaker(book,fourGram);
-		CipherBreaker sm = new CipherBreaker("Hobbit.txt","4grams.txt");
+		scan.close();
+		CipherBreaker sm = new CipherBreaker(book,fourGram);
 		sm.Execute();
 	}
 }
